@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>не пельмени 🍷🥗</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;background:#fafafa;color:#111;text-align:center}
+header{padding:40px 20px}
+h1{margin:0;font-size:32px;font-weight:800}
+.desc{margin-top:8px;font-size:16px;color:#555}
+.container{max-width:700px;margin:0 auto;padding:0 16px}
+.section{display:none}
+h2{font-size:22px;margin:20px 0}
+ul{list-style:none;padding:0;margin:0;text-align:left;max-width:400px;margin:0 auto}
+li{margin:10px 0;font-size:16px}
+label{cursor:pointer}
+.btn{background:#111;color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;border:0;margin-top:20px}
+.btn.sec{background:#f0f0f3;color:#111}
+table{width:100%;border-collapse:collapse;margin-top:20px;background:#fff}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+th{color:#555;font-size:14px}
+.result-box{background:rgba(255,255,255,0.9);border:1px solid #eee;border-radius:12px;box-shadow:0 2px 4px rgba(0,0,0,.05);padding:20px;margin-top:20px;text-align:left}
+.final-msg{margin-top:24px;font-size:16px;color:#333;font-style:italic;text-align:center;background:rgba(255,255,255,0.85);padding:12px;border-radius:10px}
+#step3{background:url('https://images.unsplash.com/photo-1617196039897-efd16ddb3b7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;min-height:100vh;padding-bottom:40px}
+#step3 h2{background:rgba(255,255,255,0.8);display:inline-block;padding:8px 16px;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>не пельмени 🍷🥗</h1>
+  <div class="desc">коллективный выбор еды и напитков для ужина друзей</div>
+</header>
+<div class="container">
+
+  <div id="step1" class="section" style="display:block">
+    <h2>шаг 1: что пьём?</h2>
+    <ul id="drinkList"></ul>
+    <button class="btn" onclick="goToStep2()">далее →</button>
+  </div>
+
+  <div id="step2" class="section">
+    <h2>шаг 2: что едим?</h2>
+    <ul id="foodList"></ul>
+    <button class="btn sec" onclick="backToStep1()">← назад</button>
+    <button class="btn" onclick="goToStep3()">далее →</button>
+  </div>
+
+  <div id="step3" class="section">
+    <h2>итоги выбора</h2>
+    <div class="result-box">
+      <h3>напитки</h3>
+      <table id="drinkResults"></table>
+      <h3>еда</h3>
+      <table id="foodResults"></table>
+    </div>
+    <div class="final-msg">
+      Повар учтет ваши пожелания, но все равно приготовит свое секретное блюдо<br>
+      по своим личным убеждениям и вкусам.<br>
+      если не понравиться — всегда есть пельмени 🥟
+    </div>
+    <button class="btn sec" onclick="backToStep2()">← назад</button>
+  </div>
+
+</div>
+<script>
+const drinks=[
+  'вино красное Пино',
+  'вино белое Шардоне',
+  'коктейль Кордиал дыня',
+  'Корона',
+  'лимонад ромашка мята',
+  'лимонад роза вишня'
+];
+const foods=[
+  'сырная тарелка',
+  'салат',
+  'картошка курица',
+  'лазанья баклажаны',
+  'овощи гриль баранина',
+  'пицца',
+  'русские закуски'
+];
+
+let selections={drinks:[],foods:[]};
+
+function renderList(id,items,type){
+  const ul=document.getElementById(id);
+  ul.innerHTML='';
+  items.forEach(item=>{
+    const li=document.createElement('li');
+    const cid=type+'_'+item;
+    li.innerHTML=`<label><input type="checkbox" id="${cid}" onchange="toggleItem('${type}','${item}')"> ${item}</label>`;
+    ul.appendChild(li);
+  });
+}
+function toggleItem(type,item){
+  let arr=selections[type];
+  if(arr.includes(item)){ selections[type]=arr.filter(x=>x!==item); }
+  else{ arr.push(item); }
+  saveSelections();
+}
+function saveSelections(){
+  localStorage.setItem('ne-pelmeni-selections',JSON.stringify(selections));
+}
+function loadSelections(){
+  const s=localStorage.getItem('ne-pelmeni-selections');
+  if(s){ selections=JSON.parse(s); }
+}
+function showStep(step){
+  ['step1','step2','step3'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById(step).style.display='block';
+}
+function goToStep2(){ showStep('step2'); }
+function backToStep1(){ showStep('step1'); }
+function goToStep3(){ renderResults(); showStep('step3'); }
+function backToStep2(){ showStep('step2'); }
+
+function renderResults(){
+  const dT=document.getElementById('drinkResults'); dT.innerHTML='<tr><th>напиток</th><th>выбрано</th></tr>';
+  drinks.forEach(item=>{
+    const checked=selections.drinks.includes(item)?'✔️':'';
+    dT.innerHTML+=`<tr><td>${item}</td><td>${checked}</td></tr>`;
+  });
+  const fT=document.getElementById('foodResults'); fT.innerHTML='<tr><th>блюдо</th><th>выбрано</th></tr>';
+  foods.forEach(item=>{
+    const checked=selections.foods.includes(item)?'✔️':'';
+    fT.innerHTML+=`<tr><td>${item}</td><td>${checked}</td></tr>`;
+  });
+}
+
+loadSelections();
+renderList('drinkList',drinks,'drinks');
+renderList('foodList',foods,'foods');
+</script>
+</body>
+</html>
