@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ресторан дома — генератор блюд</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;background:#fafafa;color:#111;text-align:center}
+header{padding:60px 20px 40px}
+h1{margin:0;font-size:36px;font-weight:800}
+.desc{margin-top:12px;font-size:16px;color:#555}
+.container{max-width:960px;margin:0 auto;padding:0 16px}
+.input-box{display:flex;gap:8px;justify-content:center;margin:30px auto;max-width:600px}
+input{flex:1;padding:12px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px}
+.btn{background:#111;color:#fff;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;border:0}
+.btn.sec{background:#f0f0f3;color:#111}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;justify-items:center}
+.card{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05);width:100%;max-width:320px;text-align:left}
+.card img{width:100%;height:200px;object-fit:cover}
+.card-body{padding:16px}
+.card-title{font-size:18px;font-weight:700;margin:0 0 8px}
+.card-desc{font-size:14px;color:#555;margin-bottom:10px}
+.recipe{margin-top:12px;padding:12px;background:#f9f9f9;border-radius:10px;display:none;font-size:14px}
+.recipe b{display:block;margin-bottom:4px}
+ul{margin:6px 0 6px 20px;text-align:left}
+</style>
+</head>
+<body>
+<header>
+  <h1>ресторан дома</h1>
+  <div class="desc">напиши вкус или желание — и мы соберём для тебя ресторанное блюдо</div>
+</header>
+<div class="container">
+  <div class="input-box">
+    <input id="wish" type="text" placeholder="например: мясо, картофель, ресторанно">
+    <button class="btn" onclick="generate()">сгенерировать</button>
+  </div>
+  <div id="results" class="grid"></div>
+</div>
+<script>
+const meats=['ростбиф','стейк','куриное бедро','куриная грудка','свинина','лосось'];
+const sides=['картофельное пюре','картофель гратен','овощи гриль','рис','булгур','салат'];
+const sauces=['грибной соус','перечный соус','сливочный соус','томатный соус','соус барбекю'];
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function generate(){
+  const txt=document.getElementById('wish').value.toLowerCase();
+  let m=txt.includes('мяс')||txt.includes('говя')?pick(['ростбиф','стейк']):txt.includes('кур')?pick(['куриное бедро','куриная грудка']):txt.includes('свин')? 'свинина':txt.includes('лосось')?'лосось':pick(meats);
+  let s=txt.includes('карт')?pick(['картофельное пюре','картофель гратен']):txt.includes('овощ')? 'овощи гриль':txt.includes('рис')?'рис':pick(sides);
+  let so=txt.includes('соус')?pick(sauces):pick(sauces);
+  const out=document.getElementById('results'); out.innerHTML='';
+  for(let i=0;i<3;i++){
+    const dishTitle = m+' + '+s+' + '+so;
+    const desc = "ресторанная подача: "+m+" с "+s+" и "+so;
+    const imgUrl = "https://source.unsplash.com/600x400/?"+encodeURIComponent(m+" "+s);
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`<img src="${imgUrl}" alt="">
+      <div class="card-body">
+        <div class="card-title">${dishTitle}</div>
+        <div class="card-desc">${desc}</div>
+        <button class="btn sec" onclick="toggleRecipe(this)">рецепт</button>
+        <div class="recipe">
+          <b>ингредиенты:</b>
+          <ul><li>${m} — 300 г</li><li>${s}</li><li>${so}</li></ul>
+          <b>шаги:</b>
+          <ul>
+            <li>подготовь ингредиенты</li>
+            <li>приготовь ${s}</li>
+            <li>обжарь или запеки ${m}</li>
+            <li>собери тарелку и добавь ${so}</li>
+          </ul>
+        </div>
+      </div>`;
+    out.appendChild(card);
+  }
+}
+function toggleRecipe(btn){
+  const rec=btn.nextElementSibling;
+  rec.style.display=rec.style.display==='block'?'none':'block';
+}
+</script>
+</body>
+</html>
